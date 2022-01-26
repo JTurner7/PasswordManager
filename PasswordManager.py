@@ -11,21 +11,19 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-
-master_password = input('What is the master password?: ')
-#salt = os.urandom(16)
-def generate_key_derivation(salt, master_password):
+master_password = bytes(input('What is the master password?: '), 'utf8')
+def generate_key_derivation(master_password):
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=salt,
+        salt=bytes(master_password, 'utf8'),
         iterations=100000, #320000 iterations recommended by Django as of 01/2021
         backend=default_backend()
     )
     key = base64.urlsafe_b64encode(kdf.derive(master_password.encode()))
     return key
 
-key = generate_key_derivation(salt, master_password)
+key = generate_key_derivation(master_password)
 '''
 Make sure to uncomment salt and import os in order to create a new master password.
 WARNING: You will not be able to recover your data if you do this.
